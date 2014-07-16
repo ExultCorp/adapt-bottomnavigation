@@ -1,26 +1,8 @@
 // To go in the course.json file
-"_courseinfo" : {
-    "_filterButtons":{
-        "all": "All",
-        "articles": "Articles",
-        "blocks": "Blocks"
+"_bottomnavigation": {
+    "_duration": {
+        "show": 200,
+        "hide": 200
     },
-    "_allText": {
-        "title": "Title",
-        "status": "Status",
-        "pages": "Pages",
-        "menus": "Menus",
-        "articles": "Articles",
-        "blocks": "Blocks",
-        "components": "Components",
-        "assessment": "Assessment",
-        "total": "Total",
-        "incomplete": "Incomplete",
-        "completed": "Completed",
-        "hasassessment": "Course has assessment",
-        "hasnoassessment": "Course has no assessment",
-        "assessmentincomplete": "Assessment is incomplete",
-        "score" : "Score"
-    },
-    "_defaultFilter": "articles"
+    "_showMenu": false
 }
