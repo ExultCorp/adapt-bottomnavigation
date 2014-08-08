@@ -12,51 +12,20 @@ define(function(require) {
 	//PRIVATE VARIABLES
 	var visibility = {
 		height: 0,
-		hidden: true
+		hidden: true,
+		customView: null
 	};
 
-	var bottomnavigation = {
-		//PUBLIC VARIABLES
-		$el: $('<div>').addClass("bottomnavigation").appendTo($("body")),
-		model: null,
-		view: null,
-
-		//EVENTS
-		onResize: function() {
-			//capture height
-			visibility.height = parseInt(this.$el.css("height"));
-
-			//set width to window width (to align with restricted aspect ratios)
-			this.$el.css({width: $(window).width()});
-		},
-
-		initialize: function() {
-
-			this.model = new Backbone.Model(Adapt.course.get("_bottomnavigation"));
-
-			if (typeof this.model.get("_duration") == "undefined") this.model.set("_duration", { 
-				show:100,
-				 hide:100 
-			});
-
-			if (typeof this.model.get("_showMobile") == "undefined") this.model.set("_showMobile", false);
-
-			if (this.model.get("_showMobile")) $("html").addClass("bottomnavigation-hidden-mobile");
-
-			//capture height
-			visibility.height = parseInt(this.$el.css("height"));
-
-			Adapt.trigger("bottomnavigation:initialized");
-		},
+	var bottomnavigation = new (Backbone.View.extend({
 
 		//DRAWING
 		setCustomView: function(view) {
 
 			view.undelegateEvents();
 
-			this.view = view;
+			this.model.set("_customView", view);
 
-			this.$el.html("").append(this.view.$el);
+			this.$el.html("").append( view.$el );
 
 			view.delegateEvents();
 
@@ -64,9 +33,9 @@ define(function(require) {
 		},
 
 		render: function() {
-			if (typeof this.view.preRender == "function") this.view.preRender();
-			if (typeof this.view.render == "function") this.view.render();
-			if (typeof this.view.postRender == "function") this.view.postRender();
+
+			if (typeof this.model.get("_customView").render == "function") this.model.get("_customView").render();
+			
 		},
 
 		//MAIN
@@ -148,7 +117,9 @@ define(function(require) {
 				complete();
 			}
 		}
-	};
+	}))();
+
+	bottomnavigation.$el = $('<div>').addClass("bottomnavigation").appendTo($("body"));
 
 	Adapt.on("bottomnavigation:open", function() {
 		bottomnavigation.show();
@@ -159,16 +130,30 @@ define(function(require) {
 	});
 
 	Adapt.once("app:dataReady", function() {
-		bottomnavigation.initialize();
+		bottomnavigation.model = new Backbone.Model(Adapt.course.get("_bottomnavigation"));
+
+		if (typeof bottomnavigation.model.get("_duration") == "undefined") bottomnavigation.model.set("_duration", { 
+			show:100,
+			hide:100 
+		});
+
+		if (typeof bottomnavigation.model.get("_showMobile") == "undefined") bottomnavigation.model.set("_showMobile", false);
+
+		if (bottomnavigation.model.get("_showMobile")) $("html").addClass("bottomnavigation-hidden-mobile");
+
+		//capture height
+		visibility.height = parseInt(bottomnavigation.$el.css("height"));
+
+		Adapt.trigger("bottomnavigation:initialized");
 	});
 
 	//device resize and navigation drawn
-	Adapt.on("device:resize", function() { 
-		bottomnavigation.onResize();
-	});
+	Adapt.on("device:resize navigationView:postRender", function() { 
+		//capture height
+		visibility.height = parseInt(bottomnavigation.$el.css("height"));
 
-	Adapt.on("navigationView:postRender", function() { 
-		bottomnavigation.onResize(); 
+		//set width to window width (to align with restricted aspect ratios)
+		bottomnavigation.$el.css({width: $(window).width()});
 	});
 	
 	Adapt.bottomnavigation = bottomnavigation;
