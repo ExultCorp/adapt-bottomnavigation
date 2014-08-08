@@ -1,0 +1,22 @@
+//TRICKLE AWARE
+
+html.has-bottomnavigation {
+	.extension-trickle {
+		.trickle-button.trickle-button-show {
+			bottom:@bottomnavigation-height;
+		}
+	}
+}
+
+@media all and (max-width:(@device-width-medium - 1px)) {
+	html.has-bottomnavigation.bottomnavigation-hidden-mobile {
+		.extension-trickle {
+			.trickle-button.trickle-button-show {
+				bottom:@bottomnavigation-height-mobile;
+			}
+		}
+	}
+
+}
+
+

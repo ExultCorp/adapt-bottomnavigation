@@ -9,96 +9,167 @@ define(function(require) {
 	var Adapt = require('coreJS/adapt');
 	var Backbone = require('backbone');
 	
-	var bottomnavigation = $('<div>').attr("id","bottomnavigation");
+	//PRIVATE VARIABLES
 	var visibility = {
-			height: 0,
-			hidden: true
-		};
+		height: 0,
+		hidden: true
+	};
 
-	Adapt.bottomnavigation = {
-		$el: bottomnavigation,
+	var bottomnavigation = {
+		//PUBLIC VARIABLES
+		$el: $('<div>').addClass("bottomnavigation").appendTo($("body")),
 		model: null,
 		view: null,
-		initialize: function() {
-			this.model = new Backbone.Model(Adapt.course.get("_bottomnavigation"));
-			if (typeof this.model.get("_duration") == "undefined") this.model.set("_duration",{ show:200, hide:200 });
-			if (typeof this.model.get("_showMenu") == "undefined") this.model.set("_showMenu",false);
 
-			if (this.model.get("_showMenu")) {
-				this.show();
-			}			
-
+		//EVENTS
+		onResize: function() {
+			//capture height
 			visibility.height = parseInt(this.$el.css("height"));
 
-			Adapt.trigger("bottomnavigation:initialised");
+			//set width to window width (to align with restricted aspect ratios)
+			this.$el.css({width: $(window).width()});
 		},
-		setCustomView: function(bottomnavigationView) {
-			bottomnavigationView.undelegateEvents();
-			Adapt.trigger("bottomnavigation:setCustomView", bottomnavigationView);
-			this.view = bottomnavigationView;
+
+		initialize: function() {
+
+			this.model = new Backbone.Model(Adapt.course.get("_bottomnavigation"));
+
+			if (typeof this.model.get("_duration") == "undefined") this.model.set("_duration", { 
+				show:100,
+				 hide:100 
+			});
+
+			if (typeof this.model.get("_showMobile") == "undefined") this.model.set("_showMobile", false);
+
+			if (this.model.get("_showMobile")) $("html").addClass("bottomnavigation-hidden-mobile");
+
+			//capture height
+			visibility.height = parseInt(this.$el.css("height"));
+
+			Adapt.trigger("bottomnavigation:initialized");
+		},
+
+		//DRAWING
+		setCustomView: function(view) {
+
+			view.undelegateEvents();
+
+			this.view = view;
+
 			this.$el.html("").append(this.view.$el);
-			bottomnavigationView.delegateEvents();
+
+			view.delegateEvents();
+
+			Adapt.trigger("bottomnavigation:setCustomView", view);
 		},
-		onResize: function() {
-			
-		},
+
 		render: function() {
-			if (typeof this.view.reRender == "function") this.view.reRender();
+			if (typeof this.view.preRender == "function") this.view.preRender();
+			if (typeof this.view.render == "function") this.view.render();
+			if (typeof this.view.postRender == "function") this.view.postRender();
 		},
+
+		//MAIN
+		showMobile: function(bool) {
+			this.model.set("_showMobile", (bool == true) );
+
+			if (bool) $("html").removeClass("bottomnavigation-hidden-mobile");
+			else $("html").addClass("bottomnavigation-hidden-mobile");
+		},
+
 		show: function(duration) {
 			if (!visibility.hidden) return;
-			Adapt.trigger("popup:opened");
-			this.render();
-			if (typeof duration == "undefined") duration = this.model.get("_duration").show;
-			var bottomnavigation = this;
 
-			if (duration > 0 ) {
-				$("body").addClass("body-wrapper-bottomnavigation");
-				this.$el.css({"height": "0px", "display": "block"});
-				this.$el.animate({ height: visibility.height + "px" }, {duration:duration, start: function() {
-					
-				}, complete: function() {
-					visibility.hidden = false;
-					Adapt.trigger("bottomnavigation:opened");
-				}});
-			} else {
-				$("body").addClass("body-wrapper-bottomnavigation");
-				this.$el.css({height: visibility.height + "px", display: "block" });
+			Adapt.trigger("popup:opened");
+
+			this.render();
+
+			if (typeof duration == "undefined") duration = this.model.get("_duration").show;
+
+			function start() {
+				$("html").addClass("has-bottomnavigation");
+				bottomnavigation.$el.css({
+					"height": "0px", 
+					"display": "block", 
+					width: $(window).width()
+				});
+			}
+			
+			function complete() {
 				visibility.hidden = false;
+				bottomnavigation.$el.css({
+					height: "",
+					display: "block"
+				});
 				Adapt.trigger("bottomnavigation:opened");
 			}
+
+			if (duration > 0 ) {
+				this.$el.animate({ 
+					height: visibility.height + "px" 
+				}, {
+					duration: duration, 
+					start: start,
+					complete: complete 
+				});
+			} else {
+				start();
+				complete();
+			}
 		},
+
 		hide: function(duration) {
 			if (visibility.hidden) return;
-			if (typeof duration == "undefined") duration = this.model.get("_duration").hide;
-			var bottomnavigation = this;
-			
-			//this.$el.hide();
-			//Adapt.trigger("bottomnavigation:closed");
 
-			function finished() {
+			if (typeof duration == "undefined") duration = this.model.get("_duration").hide;
+
+			function start() {
+				$("html").removeClass("has-bottomnavigation");
+			}
+			
+			function complete() {
 				visibility.hidden = true;
 				Adapt.trigger("popup:closed");
 				Adapt.trigger("bottomnavigation:closed");
 				bottomnavigation.$el.hide();
+				bottomnavigation.$el.css("height", "");
 			}
-			$("body").removeClass("body-wrapper-bottomnavigation");
+			
 			if (duration > 0) {
-				this.$el.animate({ height: "0px" }, {duration:duration, complete: finished});
+				this.$el.animate({ 
+					height: "0px" 
+				}, {
+					duration:duration,
+					start: start, 
+					complete: complete
+				});
 			} else {
-				finished();
+				start();
+				complete();
 			}
 		}
 	};
 
-	Adapt.on("app:dataReady", function() {
-		Adapt.bottomnavigation.initialize.call(Adapt.bottomnavigation);
+	Adapt.on("bottomnavigation:open", function() {
+		bottomnavigation.show();
+	});
+	
+	Adapt.on("bottomnavigation:close", function() {
+		bottomnavigation.hide();
+	});
+
+	Adapt.once("app:dataReady", function() {
+		bottomnavigation.initialize();
 	});
 
 	//device resize and navigation drawn
-	Adapt.on("device:resize", function() { Adapt.bottomnavigation.onResize.call(Adapt.bottomnavigation); } );
-	Adapt.on("navigationView:postRender", function() { Adapt.bottomnavigation.onResize.call(Adapt.bottomnavigation); } );
-	
-	$("body").append(bottomnavigation);
+	Adapt.on("device:resize", function() { 
+		bottomnavigation.onResize();
+	});
 
+	Adapt.on("navigationView:postRender", function() { 
+		bottomnavigation.onResize(); 
+	});
+	
+	Adapt.bottomnavigation = bottomnavigation;
 });

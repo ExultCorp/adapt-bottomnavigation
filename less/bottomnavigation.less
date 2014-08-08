@@ -4,22 +4,42 @@
 * Maintainers - Oliver Foster <oliver.foster@kineo.com>
 */
 
-#bottomnavigation {
-	display: none;
-	width:100%;
-	background-color: white;
-	height: 50px;
-	bottom: 0px;
-	left: 0px;
-	right:0px;
-	position: fixed;
-	overflow: hidden;
-	z-index: 20;
-	border-top: 1px solid #3eb4e4;
-}
-
-.body-wrapper-bottomnavigation {
+html.has-bottomnavigation {
 	#wrapper {
-		margin-bottom: 50px;
+		margin-bottom: @bottomnavigation-height;
+	}
+	.bottomnavigation {
+		display: none;
+		width:100%;
+		background-color: @bottomnavigation-bg-color;
+		height: @bottomnavigation-height;
+		bottom: 0px;
+		position: fixed;
+		border-top: @bottomnavigation-border;
+		z-index: 300;
+		@media all and (max-width:@device-width-small) {
+			left:50%;
+			max-width: 400px;
+			margin-left: -200px;
+		}
+		@media all and (max-width:400px) {
+			left:0;
+			max-width: 400px;
+			margin-left: 0;
+		}
 	}
 }
+
+@media all and (max-width:(@device-width-medium - 1px)) {
+	html.has-bottomnavigation.bottomnavigation-hidden-mobile {
+		#wrapper {
+			margin-bottom: @bottomnavigation-height-mobile;
+		}
+		.bottomnavigation {
+			height: @bottomnavigation-height-mobile;
+		}
+	}
+
+}
+
+
