@@ -23,9 +23,9 @@ define(function(require) {
 
 			view.undelegateEvents();
 
-			this.model.set("_customView", view);
+			bottomnavigation.model.set("_customView", view);
 
-			this.$el.html("").append( view.$el );
+			bottomnavigation.$el.html("").append( view.$el );
 
 			view.delegateEvents();
 
@@ -34,13 +34,13 @@ define(function(require) {
 
 		render: function() {
 
-			if (typeof this.model.get("_customView").render == "function") this.model.get("_customView").render();
+			if (typeof bottomnavigation.model.get("_customView").render == "function") bottomnavigation.model.get("_customView").render();
 			
 		},
 
 		//MAIN
 		showMobile: function(bool) {
-			this.model.set("_showMobile", (bool == true) );
+			bottomnavigation.model.set("_showOnMobile", (bool == true) );
 
 			if (bool) $("html").removeClass("bottomnavigation-hidden-mobile");
 			else $("html").addClass("bottomnavigation-hidden-mobile");
@@ -51,9 +51,9 @@ define(function(require) {
 
 			Adapt.trigger("popup:opened");
 
-			this.render();
+			bottomnavigation.render();
 
-			if (typeof duration == "undefined") duration = this.model.get("_duration").show;
+			if (typeof duration == "undefined") duration = bottomnavigation.model.get("_duration").show;
 
 			function start() {
 				$("html").addClass("has-bottomnavigation");
@@ -74,7 +74,7 @@ define(function(require) {
 			}
 
 			if (duration > 0 ) {
-				this.$el.animate({ 
+				bottomnavigation.$el.animate({ 
 					height: visibility.height + "px" 
 				}, {
 					duration: duration, 
@@ -90,7 +90,7 @@ define(function(require) {
 		hide: function(duration) {
 			if (visibility.hidden) return;
 
-			if (typeof duration == "undefined") duration = this.model.get("_duration").hide;
+			if (typeof duration == "undefined") duration = bottomnavigation.model.get("_duration").hide;
 
 			function start() {
 				$("html").removeClass("has-bottomnavigation");
@@ -105,7 +105,7 @@ define(function(require) {
 			}
 			
 			if (duration > 0) {
-				this.$el.animate({ 
+				bottomnavigation.$el.animate({ 
 					height: "0px" 
 				}, {
 					duration:duration,
@@ -137,9 +137,9 @@ define(function(require) {
 			hide:100 
 		});
 
-		if (typeof bottomnavigation.model.get("_showMobile") == "undefined") bottomnavigation.model.set("_showMobile", false);
+		if (typeof bottomnavigation.model.get("_showOnMobile") == "undefined") bottomnavigation.model.set("_showOnMobile", false);
 
-		if (bottomnavigation.model.get("_showMobile")) $("html").addClass("bottomnavigation-hidden-mobile");
+		if (bottomnavigation.model.get("_showOnMobile")) $("html").addClass("bottomnavigation-hidden-mobile");
 
 		//capture height
 		visibility.height = parseInt(bottomnavigation.$el.css("height"));

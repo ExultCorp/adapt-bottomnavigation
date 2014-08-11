@@ -4,5 +4,5 @@
         "show": 200,
         "hide": 200
     },
-    "_showMenu": false
+    "_showOnMobile": false
 }
