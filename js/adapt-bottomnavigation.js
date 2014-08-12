@@ -12,8 +12,7 @@ define(function(require) {
 	//PRIVATE VARIABLES
 	var visibility = {
 		height: 0,
-		hidden: true,
-		customView: null
+		hidden: true
 	};
 
 	var bottomnavigation = new (Backbone.View.extend({
@@ -21,15 +20,29 @@ define(function(require) {
 		//DRAWING
 		setCustomView: function(view) {
 
+			if (view === bottomnavigation.model.get("_customView")) return;
+
 			view.undelegateEvents();
 
 			bottomnavigation.model.set("_customView", view);
 
-			bottomnavigation.$el.html("").append( view.$el );
-
-			view.delegateEvents();
-
-			Adapt.trigger("bottomnavigation:setCustomView", view);
+			if (visibility.hidden) {
+				bottomnavigation.$el.html("").append( view.$el );
+				view.delegateEvents();
+				Adapt.trigger("bottomnavigation:setCustomView", view);
+			} else {
+				bottomnavigation.$el.children().fadeOut({
+					complete: function() {
+						view.$el.css("display","none");
+						bottomnavigation.$el.html("").append( view.$el );
+						view.$el.fadeIn();
+						view.delegateEvents();
+						Adapt.trigger("bottomnavigation:setCustomView", view);
+					},
+					duration: 200
+				});
+			}
+			
 		},
 
 		render: function() {
