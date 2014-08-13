@@ -27,6 +27,7 @@ define(function(require) {
 			bottomnavigation.model.set("_customView", view);
 
 			if (visibility.hidden) {
+				view.$el.css("display","");
 				bottomnavigation.$el.html("").append( view.$el );
 				view.delegateEvents();
 				Adapt.trigger("bottomnavigation:setCustomView", view);
