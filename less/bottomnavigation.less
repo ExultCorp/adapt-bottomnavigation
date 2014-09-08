@@ -33,10 +33,11 @@ html.has-bottomnavigation {
 @media all and (max-width:(@device-width-medium - 1px)) {
 	html.has-bottomnavigation.bottomnavigation-hidden-mobile {
 		#wrapper {
-			margin-bottom: @bottomnavigation-height-mobile;
+			margin-bottom: 0px;
 		}
 		.bottomnavigation {
-			height: @bottomnavigation-height-mobile;
+			height: 0px;
+			display:none !important;
 		}
 	}
 
