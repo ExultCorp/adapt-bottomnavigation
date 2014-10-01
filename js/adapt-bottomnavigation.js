@@ -48,7 +48,7 @@ define(function(require) {
 
 		render: function() {
 
-			if (typeof bottomnavigation.model.get("_customView").render == "function") bottomnavigation.model.get("_customView").render();
+			if (bottomnavigation.model.get("_customView") && typeof bottomnavigation.model.get("_customView").render == "function") bottomnavigation.model.get("_customView").render();
 			
 		},
 
